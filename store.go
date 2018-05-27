@@ -2,10 +2,13 @@ package redis
 
 import (
 	"encoding"
+	"errors"
 	"time"
 
 	"github.com/go-redis/redis"
 )
+
+var ErrDuplicateKey = errors.New("duplicate key")
 
 type Store struct {
 	c *redis.Client
@@ -49,6 +52,23 @@ func (s Store) Set(key string, v encoding.BinaryMarshaler) error {
 		return err
 	}
 	return s.c.Set(key, value, 0).Err()
+}
+
+// Add persists a new object.
+// Err is non-nil if key is already present, or in case of failure.
+func (s Store) Add(key string, v encoding.BinaryMarshaler) error {
+	value, err := v.MarshalBinary()
+	if err != nil {
+		return err
+	}
+	ok, err := s.c.SetNX(key, value, 0).Result()
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return ErrDuplicateKey
+	}
+	return nil
 }
 
 // SetWithDeadline assigns the given value to the given key, possibly
