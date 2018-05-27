@@ -29,7 +29,7 @@ func (s Store) Ping() (err error) {
 }
 
 // Get returns the value corresponding the key, and a nil error.
-// If no match is found, returns (nil, nil).
+// If no match is found, returns (false, nil).
 func (s Store) Get(key string, v encoding.BinaryUnmarshaler) (bool, error) {
 	res, err := s.c.Get(key).Result()
 	if err == redis.Nil {
