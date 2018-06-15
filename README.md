@@ -4,6 +4,12 @@
 
 A wrapper around github.com/go-redis/redis that implements the Store interface defined in [gokv/store](https://github.com/gokv/store).
 
+## Intro
+
+This is experimental software. Making it work is not the primary goal.
+
+The idea behind `github.com/gokv/store` is that sometimes, when a developer needs a persistence layer, she only needs a simple one.
+
 ## Use
 
 Initialise calling `New` with the address and the (optional) password to Redis.
