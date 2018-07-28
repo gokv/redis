@@ -1,6 +1,7 @@
 package redis_test
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"reflect"
@@ -74,11 +75,11 @@ func TestGetSet(t *testing.T) {
 			s := newStore()
 			defer s.Close()
 
-			if err := s.Set("somekey", tc.in); err != nil {
+			if err := s.Set(context.Background(), "somekey", tc.in); err != nil {
 				t.Errorf("setting: %v", err)
 			}
 
-			ok, err := s.Get("somekey", tc.out)
+			ok, err := s.Get(context.Background(), "somekey", tc.out)
 			if err != nil {
 				t.Errorf("getting: %v", err)
 			}
@@ -119,13 +120,13 @@ func TestSetWithTimeout(t *testing.T) {
 
 			v := &String{"some value"}
 
-			if err := s.SetWithTimeout(tc.name, v, tc.ttl); err != nil {
+			if err := s.SetWithTimeout(context.Background(), tc.name, v, tc.ttl); err != nil {
 				t.Errorf("setting: %v", err)
 			}
 
 			time.Sleep(tc.after)
 
-			ok, err := s.Get(tc.name, v)
+			ok, err := s.Get(context.Background(), tc.name, v)
 			if err != nil {
 				t.Errorf("getting: %v", err)
 			}
@@ -143,13 +144,13 @@ func TestAdd(t *testing.T) {
 
 		added := String{"some value"}
 
-		k, err := s.Add(added)
+		k, err := s.Add(context.Background(), added)
 		if err != nil {
 			t.Errorf("adding: %v", err)
 		}
 
 		var got String
-		ok, err := s.Get(k, &got)
+		ok, err := s.Get(context.Background(), k, &got)
 		if err != nil {
 			t.Errorf("getting: %v", err)
 		}

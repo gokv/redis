@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"time"
@@ -34,7 +35,7 @@ func (s Store) Ping() (err error) {
 
 // Get returns the value corresponding the key, and a nil error.
 // If no match is found, returns (false, nil).
-func (s Store) Get(k string, v json.Unmarshaler) (bool, error) {
+func (s Store) Get(_ context.Context, k string, v json.Unmarshaler) (bool, error) {
 	res, err := s.c.Get(k).Result()
 	if err == redis.Nil {
 		return false, nil
@@ -47,7 +48,7 @@ func (s Store) Get(k string, v json.Unmarshaler) (bool, error) {
 }
 
 // Set assigns the given value to the given key, possibly overwriting.
-func (s Store) Set(k string, v json.Marshaler) error {
+func (s Store) Set(_ context.Context, k string, v json.Marshaler) error {
 	value, err := v.MarshalJSON()
 	if err != nil {
 		return err
@@ -57,7 +58,7 @@ func (s Store) Set(k string, v json.Marshaler) error {
 
 // Add persists a new object with a new UUIDv4 key.
 // Err is non-nil in case of failure.
-func (s Store) Add(v json.Marshaler) (string, error) {
+func (s Store) Add(_ context.Context, v json.Marshaler) (string, error) {
 	value, err := v.MarshalJSON()
 	if err != nil {
 		return "", err
@@ -80,14 +81,14 @@ func (s Store) Add(v json.Marshaler) (string, error) {
 // SetWithDeadline assigns the given value to the given key, possibly
 // overwriting.
 // The assigned key will clear after deadline.
-func (s Store) SetWithDeadline(k string, v json.Marshaler, deadline time.Time) error {
-	return s.SetWithTimeout(k, v, deadline.Sub(time.Now()))
+func (s Store) SetWithDeadline(ctx context.Context, k string, v json.Marshaler, deadline time.Time) error {
+	return s.SetWithTimeout(ctx, k, v, deadline.Sub(time.Now()))
 }
 
 // SetWithTimeout assigns the given value to the given key, possibly
 // overwriting.
 // The assigned key will clear after timeout.
-func (s Store) SetWithTimeout(k string, v json.Marshaler, timeout time.Duration) error {
+func (s Store) SetWithTimeout(_ context.Context, k string, v json.Marshaler, timeout time.Duration) error {
 	value, err := v.MarshalJSON()
 	if err != nil {
 		return err
