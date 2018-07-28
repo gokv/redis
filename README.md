@@ -15,17 +15,36 @@ The idea behind `github.com/gokv/store` is that sometimes, when a developer need
 Initialise calling `New` with the address and the (optional) password to Redis.
 
 ```Go
-type String struct {
-	s string
+type User struct {
+	FirstName, LastName string
 }
 
-func (s *String) UnmarshalBinary(data []byte) error {
-	s.s = string(data)
+func (u *User) UnmarshalJSON(data []byte) error {
+	var ujson struct {
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+	}
+
+	if err := json.Unmarshal(data, &ujson); err != nil {
+		return err
+	}
+
+	*u = User{
+		FirstName: ujson.FirstName,
+		LastName:  ujson.LastName,
+	}
+
 	return nil
 }
 
-func (s String) MarshalBinary() ([]byte, error) {
-	return []byte(s.s), nil
+func (u User) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+	}{
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+	})
 }
 
 func main() {
@@ -39,21 +58,21 @@ func main() {
 		panic(err)
 	}
 
-	given := String{"hello world"}
+	given := User{"Giacomo", "Leopardi"}
 
-	if err := s.Add("key", given); err != nil {
+	if err := s.Add(123, given); err != nil {
 		panic(err)
 	}
 
-	var found String
-	ok, err := s.Get("key", &found)
+	var found User
+	ok, err := s.Get(123, &found)
 
 	if err != nil {
 		panic(fmt.Errorf("failure: %s", err))
 	}
 
 	if !ok {
-		panic(errors.New("key not found"))
+		panic(errors.New("user not found"))
 	}
 
 	// given == found

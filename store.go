@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"encoding"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -33,7 +33,7 @@ func (s Store) Ping() (err error) {
 
 // Get returns the value corresponding the key, and a nil error.
 // If no match is found, returns (false, nil).
-func (s Store) Get(key string, v encoding.BinaryUnmarshaler) (bool, error) {
+func (s Store) Get(key string, v json.Unmarshaler) (bool, error) {
 	res, err := s.c.Get(key).Result()
 	if err == redis.Nil {
 		return false, nil
@@ -42,12 +42,12 @@ func (s Store) Get(key string, v encoding.BinaryUnmarshaler) (bool, error) {
 		return false, err
 	}
 
-	return true, v.UnmarshalBinary([]byte(res))
+	return true, v.UnmarshalJSON([]byte(res))
 }
 
 // Set assigns the given value to the given key, possibly overwriting.
-func (s Store) Set(key string, v encoding.BinaryMarshaler) error {
-	value, err := v.MarshalBinary()
+func (s Store) Set(key string, v json.Marshaler) error {
+	value, err := v.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -56,8 +56,8 @@ func (s Store) Set(key string, v encoding.BinaryMarshaler) error {
 
 // Add persists a new object.
 // Err is non-nil if key is already present, or in case of failure.
-func (s Store) Add(key string, v encoding.BinaryMarshaler) error {
-	value, err := v.MarshalBinary()
+func (s Store) Add(key string, v json.Marshaler) error {
+	value, err := v.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -74,15 +74,15 @@ func (s Store) Add(key string, v encoding.BinaryMarshaler) error {
 // SetWithDeadline assigns the given value to the given key, possibly
 // overwriting.
 // The assigned key will clear after deadline.
-func (s Store) SetWithDeadline(key string, v encoding.BinaryMarshaler, deadline time.Time) error {
+func (s Store) SetWithDeadline(key string, v json.Marshaler, deadline time.Time) error {
 	return s.SetWithTimeout(key, v, deadline.Sub(time.Now()))
 }
 
 // SetWithTimeout assigns the given value to the given key, possibly
 // overwriting.
 // The assigned key will clear after timeout.
-func (s Store) SetWithTimeout(key string, v encoding.BinaryMarshaler, timeout time.Duration) error {
-	value, err := v.MarshalBinary()
+func (s Store) SetWithTimeout(key string, v json.Marshaler, timeout time.Duration) error {
+	value, err := v.MarshalJSON()
 	if err != nil {
 		return err
 	}

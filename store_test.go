@@ -1,7 +1,7 @@
 package redis_test
 
 import (
-	"encoding"
+	"encoding/json"
 	"os"
 	"reflect"
 	"testing"
@@ -14,12 +14,12 @@ type String struct {
 	s string
 }
 
-func (s *String) UnmarshalBinary(data []byte) error {
+func (s *String) UnmarshalJSON(data []byte) error {
 	s.s = string(data)
 	return nil
 }
 
-func (s String) MarshalBinary() ([]byte, error) {
+func (s String) MarshalJSON() ([]byte, error) {
 	return []byte(s.s), nil
 }
 
@@ -56,8 +56,8 @@ func TestGetSet(t *testing.T) {
 	now := time.Now().UTC()
 	for _, tc := range [...]struct {
 		name string
-		in   encoding.BinaryMarshaler
-		out  encoding.BinaryUnmarshaler
+		in   json.Marshaler
+		out  json.Unmarshaler
 	}{
 		{
 			"retrieves a simple string",
