@@ -82,4 +82,11 @@ func main() {
 
 
 ## Test
-Test with `go test`. An empty and *disposable* Redis instance must be running at `REDIS_ADDR` (default `localhost:6379`) with password `REDIS_PASS` (empty by default).
+An empty and *disposable* Redis instance must be running at `REDIS_ADDR` (default `localhost:6379`) with password `REDIS_PASS` (empty by default).
+
+With Docker:
+
+```shell
+docker run -d --name redis -p 6379:6379 redis:4-alpine
+go test -v .
+```
