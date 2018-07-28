@@ -4,6 +4,7 @@ services:
   - redis-server
 
 go:
+  - '1.7'
   - '1.10.x'
   - '1.x'
   - 'master'
