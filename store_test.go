@@ -137,44 +137,28 @@ func TestSetWithTimeout(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
-	t.Run("sets a value", func(t *testing.T) {
+	t.Run("adds a value", func(t *testing.T) {
 		s := newStore()
 		defer s.Close()
 
-		v := &String{"some value"}
+		added := String{"some value"}
 
-		if err := s.Add("a new key", v); err != nil {
-			t.Errorf("setting: %v", err)
+		k, err := s.Add(added)
+		if err != nil {
+			t.Errorf("adding: %v", err)
 		}
 
-		ok, err := s.Get("a new key", v)
+		var got String
+		ok, err := s.Get(k, &got)
 		if err != nil {
 			t.Errorf("getting: %v", err)
 		}
 		if !ok {
 			t.Errorf("value expected, not found")
 		}
-	})
 
-	t.Run("fails if key is already present", func(t *testing.T) {
-		s := newStore()
-		defer s.Close()
-
-		if err := s.Set("reuse key", String{"the preset value"}); err != nil {
-			t.Errorf("setting: %v", err)
-		}
-
-		if want, have := redis.ErrDuplicateKey, s.Add("reuse key", String{"the new value"}); have != want {
-			t.Errorf("expected error `%v`, found `%v`", want, have)
-		}
-
-		var got String
-		if _, err := s.Get("reuse key", &got); err != nil {
-			t.Errorf("getting: %v", err)
-		}
-
-		if want, have := "the preset value", got.s; have != want {
-			t.Errorf("expected %q, found %q", want, have)
+		if added != got {
+			t.Errorf("expected %q, found %q", added, got)
 		}
 	})
 }

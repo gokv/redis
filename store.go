@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
+	"github.com/google/uuid"
 )
 
 var ErrDuplicateKey = errors.New("duplicate key")
@@ -54,21 +55,26 @@ func (s Store) Set(k string, v json.Marshaler) error {
 	return s.c.Set(k, value, 0).Err()
 }
 
-// Add persists a new object.
-// Err is non-nil if key is already present, or in case of failure.
-func (s Store) Add(k string, v json.Marshaler) error {
+// Add persists a new object with a new UUIDv4 key.
+// Err is non-nil in case of failure.
+func (s Store) Add(v json.Marshaler) (string, error) {
 	value, err := v.MarshalJSON()
 	if err != nil {
-		return err
+		return "", err
 	}
+
+	k := uuid.New().String()
+
 	ok, err := s.c.SetNX(k, value, 0).Result()
 	if err != nil {
-		return err
+		return "", err
 	}
+
 	if !ok {
-		return ErrDuplicateKey
+		return "", ErrDuplicateKey
 	}
-	return nil
+
+	return k, nil
 }
 
 // SetWithDeadline assigns the given value to the given key, possibly
