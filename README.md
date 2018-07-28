@@ -4,6 +4,10 @@
 
 An abstraction over Redis that implements the Store interface defined in [gokv/store](https://github.com/gokv/store).
 
+## Maturity
+
+This package is not stable because `gokv/store` is not stable yet. The Store implementations are experimental software.
+
 ## Use
 
 Initialise calling `New` with the address and the (optional) password to Redis.
