@@ -2,17 +2,18 @@
 [![GoDoc](https://godoc.org/github.com/gokv/redis?status.svg)](https://godoc.org/github.com/gokv/redis)
 [![Build Status](https://travis-ci.org/gokv/redis.svg?branch=master)](https://travis-ci.org/gokv/redis)
 
-A wrapper around github.com/go-redis/redis that implements the Store interface defined in [gokv/store](https://github.com/gokv/store).
-
-## Intro
-
-This is experimental software. Making it work is not the primary goal.
-
-The idea behind `github.com/gokv/store` is that sometimes, when a developer needs a persistence layer, she only needs a simple one.
+An abstraction over Redis that implements the Store interface defined in [gokv/store](https://github.com/gokv/store).
 
 ## Use
 
 Initialise calling `New` with the address and the (optional) password to Redis.
+
+```Go
+s := redis.New("localhost:6379", "secret")
+defer s.Close()
+```
+
+In order to be stored, a type must implement `json.Marshaler`. Similarly, the `Get` method of a store accepts a pointer to a `json.Unmarshaler`. Here is a full example of storing and retrieving a simple `User` object.
 
 ```Go
 type User struct {
