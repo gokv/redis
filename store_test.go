@@ -38,7 +38,7 @@ func TestPing(t *testing.T) {
 		s := newStore()
 		defer s.Close()
 
-		if err := s.Ping(); err != nil {
+		if err := s.Ping(context.Background()); err != nil {
 			t.Error(err)
 		}
 	})
@@ -47,7 +47,7 @@ func TestPing(t *testing.T) {
 		s := redis.New("fakehost:8888", "")
 		defer s.Close()
 
-		if err := s.Ping(); err == nil {
+		if err := s.Ping(context.Background()); err == nil {
 			t.Errorf("expected error, found <nil>")
 		}
 	})

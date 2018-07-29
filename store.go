@@ -29,8 +29,13 @@ func New(address, password string) Store {
 	}
 }
 
-func (s Store) Ping() (err error) {
-	return s.c.Ping().Err()
+func (s Store) Ping(ctx context.Context) (err error) {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		return s.c.Ping().Err()
+	}
 }
 
 // Get returns the value corresponding the key, and a nil error.
